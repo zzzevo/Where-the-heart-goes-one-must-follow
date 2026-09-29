@@ -1,0 +1,14 @@
+# 脚本必须原样保存：文件含 UTF-8 BOM，
+# 而 Windows PowerShell 5.1 依赖 BOM 才能正确识别中文，
+# 否则中文提示会乱码并导致解析失败。因此禁用行尾/编码转换。
+*.ps1 -text
+
+# 文档统一 LF
+*.md  text eol=lf
+*.txt text eol=lf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.zip binary
+*.tar binary
