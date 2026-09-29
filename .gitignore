@@ -1,0 +1,18 @@
+# 解包产物
+*_解出/
+_layers_tmp/
+*.tar
+*.zip
+*.7z
+*.rar
+
+# 测试产物
+tests/_out/
+tests/_tmp/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.swp
