@@ -44,7 +44,7 @@ $script:SevenZip = $null
 $script:Bsdtar   = $null
 $script:Python   = $null
 
-# 工具定位：优先 PATH，再回退到常见安装位置（避免硬编码某台机器的路径）
+# 通用工具定位：PATH -> 常见安装位置（避免硬编码某台机器的路径）
 function Find-Tool {
     param([string[]]$Names, [string[]]$Hints)
     foreach ($n in $Names) {
@@ -59,10 +59,29 @@ function Find-Tool {
     return $null
 }
 
-$script:SevenZip = Find-Tool -Names @('7z.exe', '7za.exe') -Hints @(
-    '%ProgramFiles%\7-Zip\7z.exe',
-    '%ProgramFiles(x86)%\7-Zip\7z.exe',
-    '%LOCALAPPDATA%\Programs\7-Zip\7z.exe')
+# 7-Zip 要额外读注册表：它允许安装到任意目录（例如 D:\Winrar\7-Zip\），
+# 只靠 PATH 和 %ProgramFiles% 会漏掉这类自定义安装
+function Find-SevenZip {
+    foreach ($k in 'HKLM:\SOFTWARE\7-Zip', 'HKCU:\SOFTWARE\7-Zip', 'HKLM:\SOFTWARE\WOW6432Node\7-Zip') {
+        $v = Get-ItemProperty -Path $k -ErrorAction SilentlyContinue
+        if (-not $v) { continue }
+        foreach ($name in 'Path64', 'Path') {
+            $dir = $v.$name
+            if (-not $dir) { continue }
+            $exe = Join-Path $dir '7z.exe'
+            if (Test-Path -LiteralPath $exe) { return $exe }
+        }
+    }
+    $c = Find-Tool -Names @('7z.exe') -Hints @(
+        '%ProgramFiles%\7-Zip\7z.exe',
+        '%ProgramFiles(x86)%\7-Zip\7z.exe',
+        '%LOCALAPPDATA%\Programs\7-Zip\7z.exe')
+    if ($c) { return $c }
+    # 最后才退到 7za.exe（精简版，部分格式不支持）
+    return (Find-Tool -Names @('7za.exe') -Hints @())
+}
+
+$script:SevenZip = Find-SevenZip
 
 $script:Bsdtar = Find-Tool -Names @('bsdtar.exe', 'tar.exe') -Hints @(
     '%SystemRoot%\System32\tar.exe',
