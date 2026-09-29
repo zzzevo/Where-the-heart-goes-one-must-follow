@@ -1,13 +1,16 @@
-# 脚本必须原样保存：文件含 UTF-8 BOM，
-# 而 Windows PowerShell 5.1 依赖 BOM 才能正确识别中文，
-# 否则中文提示会乱码并导致解析失败。因此禁用行尾/编码转换。
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# PowerShell scripts MUST be stored verbatim: they carry a UTF-8 BOM and
+# Windows PowerShell 5.1 relies on that BOM to decode Chinese correctly.
+# Disable any EOL / encoding conversion for them.
 *.ps1 -text
 
-# 文档统一 LF
+# Docs use LF
 *.md  text eol=lf
 *.txt text eol=lf
 
-# 二进制
+# Binary files
 *.png binary
 *.jpg binary
 *.zip binary
