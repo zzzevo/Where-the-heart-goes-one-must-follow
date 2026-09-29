@@ -70,25 +70,62 @@
 
 ## 用法
 
+### 方式一：拖拽（最省事，推荐）
+
+把压缩包**直接拖到 `unpack.cmd` 上**，松手即解。也支持一次拖多个。
+
+双击 `unpack.cmd` 则会提示你粘贴路径。
+
+### 方式二：右键菜单
+
+安装一次（只写 HKCU，不需要管理员权限）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\install-context-menu.ps1
+```
+
+之后在 `.zip` / `.tar` / `.rar` / `.7z` / `.gz` 等文件上右键，选「**用 Nested Unpacker 解包**」。
+
+卸载：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\install-context-menu.ps1 -Uninstall
+```
+
+### 方式三：命令行
+
+> 📌 下面几条是**任选其一**，不是要依次执行。它们只是同一个命令的不同参数组合。
+
 ```powershell
 # 最简：丢个包进去，输出到同级的「<包名>_解出」
 powershell -ExecutionPolicy Bypass -File .\unpack-nested.ps1 "D:\下载\某某资源.tar"
 
 # 已知密码
-.\unpack-nested.ps1 "包.zip" -Password 1111
+powershell -ExecutionPolicy Bypass -File .\unpack-nested.ps1 "包.zip" -Password 1111
 
 # 指定输出目录 + 放宽层数上限
-.\unpack-nested.ps1 "包.zip" -OutDir "D:\输出" -MaxLayers 60
+powershell -ExecutionPolicy Bypass -File .\unpack-nested.ps1 "包.zip" -OutDir "D:\输出" -MaxLayers 60
 
 # 保留每一层中间产物（排查问题时有用）
-.\unpack-nested.ps1 "包.zip" -KeepLayers
+powershell -ExecutionPolicy Bypass -File .\unpack-nested.ps1 "包.zip" -KeepLayers
 
 # 跳过 Defender 预扫描（大文件能省几分钟）
-.\unpack-nested.ps1 "包.zip" -NoScan
+powershell -ExecutionPolicy Bypass -File .\unpack-nested.ps1 "包.zip" -NoScan
 ```
 
+#### 嫌命令太长？设个别名
+
+把下面这行加进你的 PowerShell 配置文件，之后只敲 `unpack 包.zip` 就行：
+
+```powershell
+Add-Content $PROFILE 'function unpack { powershell -NoProfile -ExecutionPolicy Bypass -File "D:\你的路径\unpack-nested.ps1" @args }'
+```
+
+新开一个 PowerShell 窗口生效。
+
 > ⚠️ 直接 `.\unpack-nested.ps1` 会被 PowerShell 执行策略拦截，必须用
-> `powershell -ExecutionPolicy Bypass -File` 调用。
+> `powershell -ExecutionPolicy Bypass -File` 调用（或用上面的别名）。
+
 
 ### 参数
 
